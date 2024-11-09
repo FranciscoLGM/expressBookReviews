@@ -70,13 +70,20 @@ async function getBookByAuthor(author) {
 }
 
 // Get all books based on title
-public_users.get("/title/:title", function (req, res) {
-  const title = req.params.title;
-  let filtered_title = Object.keys(books).find(
-    (key) => books[key].title === title
-  );
-  res.send(JSON.stringify(books[filtered_title], null, 2));
+public_users.get("/title/:title", async function (req, res) {
+  const { title } = req.params;
+  const filtered_title = await getBookByTitle(title);
+
+  if (!filtered_title) {
+    res.status(404).json({ error: "Book not found" });
+  } else {
+    res.json(filtered_title);
+  }
 });
+
+async function getBookByTitle(title) {
+  return Object.values(books).find((book) => book.title === title);
+}
 
 //  Get book review
 public_users.get("/review/:isbn", function (req, res) {
