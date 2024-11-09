@@ -4,17 +4,22 @@ let isValid = require("./auth_users.js").isValid;
 let users = require("./auth_users.js").users;
 const public_users = express.Router();
 
-public_users.post("/register", (req, res) => {
-  const { username, password } = req.body;
-  if (username && password) {
-    if (isValid(username)) {
-      users.push({ username, password });
-      return res.send("User registered successfully!");
-    } else {
-      return res.send("Username already exists!");
+public_users.post("/register", async (req, res) => {
+  try {
+    const { username, password } = req.body;
+    if (!username || !password) {
+      return res
+        .status(400)
+        .json({ error: "Please enter username and password!" });
     }
-  } else {
-    return res.send("Please enter username and password!");
+    if (!isValid(username)) {
+      return res.status(400).json({ error: "Username already exists!" });
+    }
+    users.push({ username, password });
+    return res.status(200).json({ message: "User registered successfully!" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal Server Error" });
   }
 });
 
