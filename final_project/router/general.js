@@ -55,13 +55,18 @@ async function getBookByISBN(isbn) {
 
 // Get book details based on author
 public_users.get("/author/:author", async function (req, res) {
-  const { author } = req.params;
-  const filtered_author = await getBookByAuthor(author);
+  try {
+    const { author } = req.params;
+    const filtered_author = await getBookByAuthor(author);
 
-  if (!filtered_author) {
-    res.status(404).json({ error: "Book not found" });
-  } else {
-    res.json(filtered_author);
+    if (!filtered_author) {
+      res.status(404).json({ error: "Book not found" });
+    } else {
+      res.json(filtered_author);
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal Server Error" });
   }
 });
 
@@ -71,13 +76,18 @@ async function getBookByAuthor(author) {
 
 // Get all books based on title
 public_users.get("/title/:title", async function (req, res) {
-  const { title } = req.params;
-  const filtered_title = await getBookByTitle(title);
+  try {
+    const { title } = req.params;
+    const filtered_title = await getBookByTitle(title);
 
-  if (!filtered_title) {
-    res.status(404).json({ error: "Book not found" });
-  } else {
-    res.json(filtered_title);
+    if (!filtered_title) {
+      res.status(404).json({ error: "Book not found" });
+    } else {
+      res.json(filtered_title);
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal Server Error" });
   }
 });
 
@@ -86,9 +96,23 @@ async function getBookByTitle(title) {
 }
 
 //  Get book review
-public_users.get("/review/:isbn", function (req, res) {
-  const isbn = req.params.isbn;
-  res.send(JSON.stringify(books[isbn].reviews, null, 2));
+public_users.get("/review/:isbn", async function (req, res) {
+  try {
+    const { isbn } = req.params;
+    const book = await getBookByISBN(isbn);
+    if (book) {
+      res.json(book.reviews);
+    } else {
+      res.status(404).json({ error: "Book not found" });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Error fetching book details" });
+  }
 });
+
+async function getBookByISBN(isbn) {
+  return books[isbn];
+}
 
 module.exports.general = public_users;
