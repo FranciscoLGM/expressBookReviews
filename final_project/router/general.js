@@ -76,7 +76,7 @@ public_users.get("/author/:author", async function (req, res) {
 });
 
 async function getBookByAuthor(author) {
-  return Object.values(books).find((book) => book.author === author);
+  return Object.values(books).filter((book) => book.author === author);
 }
 
 // Get all books based on title
